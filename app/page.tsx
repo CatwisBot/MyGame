@@ -1,7 +1,22 @@
+"use client";
+
 import React from "react";
+import { useRouter } from "next/navigation";
 import { Pickaxe, Building2, Gem, Globe2 } from "lucide-react";
 
 export default function SplashScreen() {
+  const router = useRouter();
+  
+  const handleNavigate = () => {
+    // Try multiple navigation methods for better compatibility
+    try {
+      router.push('/game');
+    } catch (e) {
+      // Fallback to direct navigation
+      window.location.href = '/game/';
+    }
+  };
+  
   return (
   <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-gray-900 via-slate-800 to-gray-700 relative px-4 py-6 sm:px-8">
       {/* Animated pickaxe */}
@@ -36,11 +51,12 @@ export default function SplashScreen() {
           <li className="flex items-center gap-2"><Gem size={18} className="text-blue-400" /> Temukan mineral langka dan capai level tertinggi</li>
         </ul>
         <div className="mt-4 text-xs sm:text-sm text-gray-400 text-center">Game idle clicker, cocok dimainkan kapan saja!</div>
-        <a href="/game" className="block mt-6 text-center">
-          <button className="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded-lg shadow transition w-full max-w-xs mx-auto">
-            Masuk ke Game
-          </button>
-        </a>
+        <button 
+          onClick={handleNavigate}
+          className="block mt-6 bg-blue-700 hover:bg-blue-800 active:bg-blue-900 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition w-full max-w-xs mx-auto"
+        >
+          Masuk ke Game
+        </button>
       </div>
   <div className="text-xs text-gray-400 mb-2 z-10 text-center">Versi Alpha • Progress & fitur akan terus bertambah!</div>
   <div className="text-xs text-gray-500 mb-2 z-10 text-center">Dibuat oleh <span className="font-bold text-blue-400">Catwis Dev</span></div>
