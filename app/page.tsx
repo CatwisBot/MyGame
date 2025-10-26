@@ -24,7 +24,7 @@ export default function SplashScreen() {
         </svg>
       </div>
       <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-100 drop-shadow-[0_4px_24px_#334155] mb-2 z-10 text-center">
-        Miner Tycoon
+        Simple Tap Miner
       </h1>
       <p className="text-base sm:text-xl text-blue-300 font-semibold mb-4 drop-shadow-[0_2px_8px_#334155] z-10 text-center">
         Klik untuk menjadi raja tambang!
