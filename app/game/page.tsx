@@ -692,7 +692,7 @@ export default function GamePage() {
         </button>
       </div>
 
-      <h2 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-4 text-center">Miner Tycoon</h2>
+  <h2 className="text-2xl sm:text-3xl font-bold text-gray-100 mb-4 text-center">Simple Tap Miner</h2>
       
       {/* Stats Display */}
       <div className="grid grid-cols-2 gap-2 mb-4 w-full max-w-md">
