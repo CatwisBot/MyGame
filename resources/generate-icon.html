@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Icon - Tap Miner</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #1a1a2e;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        #canvas {
+            border: 2px solid #fff;
+            margin: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #16213e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0f3460;
+        }
+    </style>
+</head>
+<body>
+    <h1>Icon Generator - Tap Miner</h1>
+    <canvas id="canvas" width="512" height="512"></canvas>
+    <button onclick="downloadIcon()">Download Icon (512x512)</button>
+    <p>Klik kanan pada canvas → Save Image As → Simpan sebagai icon.png</p>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Background gradient
+        const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+        gradient.addColorStop(0, '#1e293b');
+        gradient.addColorStop(1, '#0f172a');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 512, 512);
+        
+        // Draw pickaxe handle
+        ctx.fillStyle = '#8b4513';
+        ctx.fillRect(200, 350, 30, 120);
+        
+        // Draw pickaxe head
+        ctx.fillStyle = '#94a3b8';
+        ctx.beginPath();
+        ctx.moveTo(150, 250);
+        ctx.lineTo(280, 250);
+        ctx.lineTo(260, 290);
+        ctx.lineTo(170, 290);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Pickaxe point left
+        ctx.beginPath();
+        ctx.moveTo(150, 250);
+        ctx.lineTo(100, 270);
+        ctx.lineTo(130, 290);
+        ctx.lineTo(170, 290);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Pickaxe point right
+        ctx.beginPath();
+        ctx.moveTo(280, 250);
+        ctx.lineTo(330, 270);
+        ctx.lineTo(300, 290);
+        ctx.lineTo(260, 290);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Draw gems/minerals around
+        const gems = [
+            { x: 380, y: 150, color: '#3b82f6', size: 40 }, // Blue
+            { x: 120, y: 120, color: '#10b981', size: 35 }, // Green
+            { x: 400, y: 380, color: '#f59e0b', size: 38 }, // Orange
+            { x: 90, y: 400, color: '#8b5cf6', size: 42 }, // Purple
+        ];
+        
+        gems.forEach(gem => {
+            ctx.fillStyle = gem.color;
+            ctx.shadowColor = gem.color;
+            ctx.shadowBlur = 15;
+            
+            ctx.beginPath();
+            ctx.moveTo(gem.x, gem.y - gem.size/2);
+            ctx.lineTo(gem.x + gem.size/3, gem.y);
+            ctx.lineTo(gem.x, gem.y + gem.size/2);
+            ctx.lineTo(gem.x - gem.size/3, gem.y);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.shadowBlur = 0;
+        });
+        
+        // Add shine effect
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.beginPath();
+        ctx.arc(180, 140, 80, 0, Math.PI * 2);
+        ctx.fill();
+        
+        function downloadIcon() {
+            const link = document.createElement('a');
+            link.download = 'icon.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>
