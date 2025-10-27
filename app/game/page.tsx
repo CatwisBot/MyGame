@@ -256,6 +256,8 @@ export default function GamePage() {
   const [valueMultiplierLevel, setValueMultiplierLevel] = useState(savedData?.valueMultiplierLevel || 1);
   const [spawnRate, setSpawnRate] = useState(savedData?.spawnRate || 5000);
   const [spawnRateLevel, setSpawnRateLevel] = useState(savedData?.spawnRateLevel || 1);
+  // Multi Summon Upgrade
+  const [multiSummonLevel, setMultiSummonLevel] = useState(savedData?.multiSummonLevel || 1); // 1=2 rocks, 6=7 rocks
 
   // Upgrade costs
   const clickPowerCost = Math.floor(100 * Math.pow(1.5, clickPowerLevel - 1));
@@ -266,6 +268,7 @@ export default function GamePage() {
   const autoClickerCost = Math.floor(1000 * Math.pow(2.5, autoClickerLevel));
   const luckBonusCost = Math.floor(800 * Math.pow(2, luckBonus));
   const maxRocksCost = Math.floor(2000 * Math.pow(3, maxRocks - 9));
+  const multiSummonCost = Math.floor(5000 * Math.pow(2.5, multiSummonLevel - 1));
 
   const getRandomMineral = (): Mineral => {
     const totalRarity = minerals.reduce((sum, m) => sum + m.rarity * (1 + luckBonus * 0.1), 0);
@@ -285,19 +288,24 @@ export default function GamePage() {
   };
 
   const spawnRock = () => {
-    if (rocks.length < maxRocks) {
-      const mineral = getRandomMineral();
-      const isCritical = Math.random() * 100 < criticalChance;
-      const newRock: Rock = {
-        id: nextRockId,
-        health: 20,
-        maxHealth: 20,
-        mineral,
-        revealed: false,
-        isCritical,
-      };
-      setRocks((prev: Rock[]) => [...prev, newRock]);
-      setNextRockId((prev: number) => prev + 1);
+    // Multi summon: spawn 2-7 rocks per call
+    const rocksToSpawn = Math.min(multiSummonLevel + 1, maxRocks - rocks.length);
+    if (rocksToSpawn > 0) {
+      const newRocks: Rock[] = [];
+      for (let i = 0; i < rocksToSpawn; i++) {
+        const mineral = getRandomMineral();
+        const isCritical = Math.random() * 100 < criticalChance;
+        newRocks.push({
+          id: nextRockId + i,
+          health: 20,
+          maxHealth: 20,
+          mineral,
+          revealed: false,
+          isCritical,
+        });
+      }
+      setRocks((prev: Rock[]) => [...prev, ...newRocks]);
+      setNextRockId((prev: number) => prev + rocksToSpawn);
     }
   };
 
@@ -494,24 +502,29 @@ export default function GamePage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setRocks((currentRocks: Rock[]) => {
-        if (currentRocks.length < maxRocks) {
-          const mineral = getRandomMineral();
-          const isCritical = Math.random() * 100 < criticalChance;
-          const newRock: Rock = {
-            id: Date.now() + Math.random(), // Use timestamp + random for unique ID
-            health: 20,
-            maxHealth: 20,
-            mineral,
-            revealed: false,
-            isCritical,
-          };
-          return [...currentRocks, newRock];
+        const availableSlots = maxRocks - currentRocks.length;
+        const rocksToSpawn = Math.min(multiSummonLevel + 1, availableSlots);
+        if (rocksToSpawn > 0) {
+          const newRocks: Rock[] = [];
+          for (let i = 0; i < rocksToSpawn; i++) {
+            const mineral = getRandomMineral();
+            const isCritical = Math.random() * 100 < criticalChance;
+            newRocks.push({
+              id: Date.now() + Math.random() + i,
+              health: 20,
+              maxHealth: 20,
+              mineral,
+              revealed: false,
+              isCritical,
+            });
+          }
+          return [...currentRocks, ...newRocks];
         }
         return currentRocks;
       });
     }, spawnRate);
     return () => clearInterval(interval);
-  }, [spawnRate, maxRocks, criticalChance]);
+  }, [spawnRate, maxRocks, criticalChance, multiSummonLevel]);
 
   // Auto clicker
   useEffect(() => {
@@ -599,28 +612,29 @@ export default function GamePage() {
   useEffect(() => {
     const saveProgress = () => {
       const progressData = {
-        money,
-        totalEarned,
-        totalClicks,
-        rocksDestroyed,
-        clickPower,
-        clickPowerLevel,
-        valueMultiplier,
-        valueMultiplierLevel,
-        spawnRate,
-        spawnRateLevel,
-        criticalChance,
-        criticalDamage,
-        autoClickerLevel,
-        luckBonus,
-        maxRocks,
-        dailyReward,
-        prestigePoints,
-        prestigeMultiplier,
-        workerList,
-        achievements,
-        isMuted,
-        lastSaved: new Date().toISOString(),
+  money,
+  totalEarned,
+  totalClicks,
+  rocksDestroyed,
+  clickPower,
+  clickPowerLevel,
+  valueMultiplier,
+  valueMultiplierLevel,
+  spawnRate,
+  spawnRateLevel,
+  multiSummonLevel,
+  criticalChance,
+  criticalDamage,
+  autoClickerLevel,
+  luckBonus,
+  maxRocks,
+  dailyReward,
+  prestigePoints,
+  prestigeMultiplier,
+  workerList,
+  achievements,
+  isMuted,
+  lastSaved: new Date().toISOString(),
       };
       
       if (typeof window !== 'undefined') {
@@ -837,6 +851,26 @@ export default function GamePage() {
                 <span>${clickPowerCost.toLocaleString()}</span>
               </div>
               <div className="text-xs text-left mt-1 opacity-75">Level {clickPowerLevel} → {clickPowerLevel + 1}</div>
+            </button>
+            {/* Multi Summon Upgrade */}
+            <button
+              onClick={() => {
+                if (money >= multiSummonCost && multiSummonLevel < 7) {
+                  setMoney((m: number) => m - multiSummonCost);
+                  setMultiSummonLevel((l: number) => l + 1);
+                  playUpgradeSound();
+                }
+              }}
+              disabled={money < multiSummonCost || multiSummonLevel >= 7}
+              className="w-full bg-teal-700 hover:bg-teal-800 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold py-3 px-4 rounded-lg transition"
+            >
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Users size={16} /> Multi Summon: {multiSummonLevel + 1} rocks
+                </span>
+                <span>${multiSummonCost.toLocaleString()}</span>
+              </div>
+              <div className="text-xs text-left mt-1 opacity-75">Level {multiSummonLevel} → {multiSummonLevel + 1} (Max 8 rocks)</div>
             </button>
 
             <button
